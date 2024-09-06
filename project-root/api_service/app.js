@@ -5,6 +5,7 @@ const coffeeRoutes = require('./routes/coffeeRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const addonRoutes = require('./routes/addonRoutes');
 const promotionRoutes = require('./routes/promotionRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 require('dotenv').config();
 app.use(express.json());
@@ -15,6 +16,7 @@ app.use('/coffees', coffeeRoutes);
 app.use('/orders', orderRoutes);
 app.use('/addons', addonRoutes);
 app.use('/promotions', promotionRoutes);
+app.use('/reviews', reviewRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
