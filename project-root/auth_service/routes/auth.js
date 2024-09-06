@@ -22,12 +22,17 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const user = await User.findOne({ where: { username } });
+  
   if (user && bcrypt.compareSync(password, user.password)) {
-    const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET);
+    const token = jwt.sign(
+      { id: user.id, username: user.username, admin: user.admin },  // Dodajemo admin status u token
+      process.env.JWT_SECRET
+    );
     res.json({ token });
   } else {
     res.status(401).json({ error: 'Invalid credentials' });
   }
 });
+
 
 module.exports = router;
