@@ -34,5 +34,25 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.get('/verify-token', async (req, res) => {
+  const token = req.header('Authorization')?.split(' ')[1];
+  if (!token) {
+    return res.status(403).json({ error: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findByPk(decoded.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Vraćamo korisničke podatke (npr. admin status)
+    res.json({ id: user.id, username: user.username, admin: user.admin });
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+});
+
 
 module.exports = router;
