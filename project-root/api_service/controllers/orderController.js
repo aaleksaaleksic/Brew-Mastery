@@ -1,5 +1,5 @@
-const axios = require('axios'); // Dodajemo axios za slanje HTTP zahteva
-const { Order, OrderItems, Coffee } = require('../models');
+const axios = require('axios');
+const { Order, OrderItems, Coffee, Addon, OrderItemAddon } = require('../models');
 
 // Funkcija za proveru korisničkog tokena preko auth_service
 const verifyUser = async (token) => {
@@ -9,12 +9,13 @@ const verifyUser = async (token) => {
         Authorization: `Bearer ${token}`
       }
     });
-    return response.data; // Vraćamo podatke o korisniku
+    return response.data;
   } catch (error) {
     throw new Error('Unauthorized');
   }
 };
 
+// Kreiranje narudžbine sa dodacima
 const createOrder = async (req, res) => {
   const { status, coffees } = req.body;
   const token = req.header('Authorization')?.split(' ')[1];
@@ -22,22 +23,26 @@ const createOrder = async (req, res) => {
   try {
     const user = await verifyUser(token);
 
-    // Kreiramo narudžbinu
     const order = await Order.create({ status, userId: user.id });
-
-    // Logovanje podataka o kafama
     console.log('Coffees in order:', coffees);
 
-    // Kreiramo OrderItems za svaku kafu u narudžbini
     for (const coffee of coffees) {
-      console.log(`Creating OrderItem for orderId ${order.id}, coffeeId ${coffee.coffeeId}, quantity ${coffee.quantity}, price ${coffee.price}`);
-
-      await OrderItems.create({
+      const orderItem = await OrderItems.create({
         orderId: order.id,
         coffeeId: coffee.coffeeId,
         quantity: coffee.quantity,
         price: coffee.price
       });
+
+      // Proveravamo da li postoje dodaci za ovaj orderItem
+      if (coffee.addons && coffee.addons.length > 0) {
+        for (const addonId of coffee.addons) {
+          await OrderItemAddon.create({
+            orderItemId: orderItem.id,
+            addonId: addonId
+          });
+        }
+      }
     }
 
     res.status(201).json(order);
@@ -50,12 +55,11 @@ const createOrder = async (req, res) => {
 // Dohvatanje svih narudžbina
 const getAllOrders = async (req, res) => {
   try {
-    // Uklanjamo Coffee iz "include", umesto toga uključujemo OrderItems i Coffee unutar OrderItems
     const orders = await Order.findAll({
       include: [
         {
-          model: OrderItems, // Uključujemo OrderItems
-          include: [Coffee] // Uključujemo Coffee unutar OrderItems
+          model: OrderItems,
+          include: [Coffee, Addon] // Uključujemo Coffee i Addons unutar OrderItems
         }
       ]
     });
@@ -66,15 +70,15 @@ const getAllOrders = async (req, res) => {
   }
 };
 
-
+// Dohvatanje narudžbine po ID-u
 const getOrderById = async (req, res) => {
   const { id } = req.params;
   try {
     const order = await Order.findByPk(id, {
       include: [
         {
-          model: OrderItems, // Uključujemo OrderItems
-          include: [Coffee]  // Uključujemo Coffee unutar OrderItems
+          model: OrderItems,
+          include: [Coffee, Addon] // Uključujemo Coffee i Addons unutar OrderItems
         }
       ]
     });
@@ -84,20 +88,18 @@ const getOrderById = async (req, res) => {
       res.status(404).json({ error: 'Order not found' });
     }
   } catch (error) {
-    console.error('Error fetching order:', error);  // Logujemo grešku
+    console.error('Error fetching order:', error);
     res.status(500).json({ error: 'Error fetching order' });
   }
 };
 
-
-
+// Ažuriranje narudžbine (samo admin može ažurirati narudžbinu)
 const updateOrder = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
-  const token = req.header('Authorization')?.split(' ')[1]; // Preuzimamo token iz Authorization headera
+  const token = req.header('Authorization')?.split(' ')[1];
 
   try {
-    // Proveravamo korisnika preko auth_service
     const user = await verifyUser(token);
     if (!user.admin) {
       return res.status(403).json({ error: 'Access denied. Admins only.' });
@@ -106,8 +108,8 @@ const updateOrder = async (req, res) => {
     const order = await Order.findByPk(id, {
       include: [
         {
-          model: OrderItems, // Ako želiš dohvatiti OrderItems
-          include: [Coffee]  // I povezane Coffee stavke
+          model: OrderItems,
+          include: [Coffee, Addon]  // Uključujemo Coffee i Addons unutar OrderItems
         }
       ]
     });
@@ -123,14 +125,12 @@ const updateOrder = async (req, res) => {
   }
 };
 
-
 // Brisanje narudžbine (samo admin može obrisati narudžbinu)
 const deleteOrder = async (req, res) => {
   const { id } = req.params;
-  const token = req.header('Authorization')?.split(' ')[1]; // Preuzimamo token iz Authorization headera
+  const token = req.header('Authorization')?.split(' ')[1];
 
   try {
-    // Proveravamo korisnika preko auth_service
     const user = await verifyUser(token);
     if (!user.admin) {
       return res.status(403).json({ error: 'Access denied. Admins only.' });

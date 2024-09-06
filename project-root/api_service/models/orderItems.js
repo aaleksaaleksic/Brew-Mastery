@@ -3,9 +3,10 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class OrderItems extends Model {
     static associate(models) {
-      // Povezujemo OrderItems sa Orders i Coffees bez viška kolona
       OrderItems.belongsTo(models.Order, { foreignKey: 'orderId', onDelete: 'CASCADE' });
       OrderItems.belongsTo(models.Coffee, { foreignKey: 'coffeeId' });
+      // Povezujem OrderItems sa Addons preko pivot tabele OrderItemAddons
+      OrderItems.belongsToMany(models.Addon, { through: 'OrderItemAddons', foreignKey: 'orderItemId' });
     }
   }
   OrderItems.init({
@@ -37,8 +38,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'OrderItems',
-    tableName: 'orderitems', // Ime tabele u bazi
-    underscored: false // Održavamo camelCase format kao u bazi
+    tableName: 'orderitems',
+    underscored: false
   });
   return OrderItems;
 };
