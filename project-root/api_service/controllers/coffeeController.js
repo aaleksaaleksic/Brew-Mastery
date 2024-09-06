@@ -1,7 +1,20 @@
 const { Coffee } = require('../models');
 
-// Kreiranje nove kafe
+
+const Joi = require('joi');
+
+const coffeeSchema = Joi.object({
+  name: Joi.string().required(),
+  description: Joi.string().optional(),
+  price: Joi.number().positive().required(),
+  categoryId: Joi.number().integer().required(),
+});
+
 const createCoffee = async (req, res) => {
+  const { error } = coffeeSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
   const { name, description, price, categoryId } = req.body;
   try {
     const coffee = await Coffee.create({ name, description, price, categoryId });
@@ -38,6 +51,10 @@ const getCoffeeById = async (req, res) => {
 
 // Ažuriranje kafe
 const updateCoffee = async (req, res) => {
+  const { error } = coffeeSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
   const { id } = req.params;
   const { name, description, price, categoryId } = req.body;
   try {

@@ -1,13 +1,25 @@
 const { Addon } = require('../models');
 
-// Kreiranje novog dodatka (Addon)
+
+const Joi = require('joi');
+
+
+const addonSchema = Joi.object({
+  name: Joi.string().required(),
+  price: Joi.number().positive().required(),
+});
+
+
 const createAddon = async (req, res) => {
+  const { error } = addonSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
   const { name, price } = req.body;
   try {
     const addon = await Addon.create({ name, price });
     res.status(201).json(addon);
   } catch (error) {
-    console.error('Error creating addon:', error);
     res.status(500).json({ error: 'Error creating addon' });
   }
 };
@@ -41,6 +53,10 @@ const getAddonById = async (req, res) => {
 
 // Ažuriranje dodatka
 const updateAddon = async (req, res) => {
+  const { error } = addonSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
   const { id } = req.params;
   const { name, price } = req.body;
   try {
@@ -54,7 +70,6 @@ const updateAddon = async (req, res) => {
       res.status(404).json({ error: 'Addon not found' });
     }
   } catch (error) {
-    console.error('Error updating addon:', error);
     res.status(500).json({ error: 'Error updating addon' });
   }
 };

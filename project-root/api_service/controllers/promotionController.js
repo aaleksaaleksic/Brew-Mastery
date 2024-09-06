@@ -1,7 +1,22 @@
 const { Promotion } = require('../models');
 
+const Joi = require('joi');
+
+// Joi šema za validaciju promocije
+const promotionSchema = Joi.object({
+  name: Joi.string().required(),
+  description: Joi.string().optional(),
+  discount: Joi.number().positive().max(100).required(),
+  startDate: Joi.date().required(),
+  endDate: Joi.date().required(),
+});
+
 // Kreiranje promocije
 const createPromotion = async (req, res) => {
+  const { error } = promotionSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
   const { name, description, discount, startDate, endDate } = req.body;
   try {
     const promotion = await Promotion.create({ name, description, discount, startDate, endDate });
@@ -38,6 +53,10 @@ const getPromotionById = async (req, res) => {
 
 // Ažuriranje promocije
 const updatePromotion = async (req, res) => {
+  const { error } = promotionSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
   const { id } = req.params;
   const { name, description, discount, startDate, endDate } = req.body;
   try {

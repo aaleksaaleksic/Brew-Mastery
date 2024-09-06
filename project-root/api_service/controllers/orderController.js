@@ -1,6 +1,19 @@
 const axios = require('axios');
 const { Order, OrderItems, Coffee, Addon, OrderItemAddon } = require('../models');
 
+const Joi = require('joi');
+
+
+const orderSchema = Joi.object({
+  status: Joi.string().required(),
+  coffees: Joi.array().items(Joi.object({
+    coffeeId: Joi.number().integer().required(),
+    quantity: Joi.number().integer().positive().required(),
+    price: Joi.number().positive().required(),
+    addons: Joi.array().items(Joi.number().integer()).optional(),
+  })).required(),
+});
+
 // Funkcija za proveru korisničkog tokena preko auth_service
 const verifyUser = async (token) => {
   try {
@@ -17,14 +30,16 @@ const verifyUser = async (token) => {
 
 // Kreiranje narudžbine sa dodacima
 const createOrder = async (req, res) => {
+  const { error } = orderSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
   const { status, coffees } = req.body;
   const token = req.header('Authorization')?.split(' ')[1];
 
   try {
     const user = await verifyUser(token);
-
     const order = await Order.create({ status, userId: user.id });
-    console.log('Coffees in order:', coffees);
 
     for (const coffee of coffees) {
       const orderItem = await OrderItems.create({
@@ -34,7 +49,6 @@ const createOrder = async (req, res) => {
         price: coffee.price
       });
 
-      // Proveravamo da li postoje dodaci za ovaj orderItem
       if (coffee.addons && coffee.addons.length > 0) {
         for (const addonId of coffee.addons) {
           await OrderItemAddon.create({

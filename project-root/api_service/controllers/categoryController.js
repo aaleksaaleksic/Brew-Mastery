@@ -1,7 +1,19 @@
 const { Category } = require('../models');
 
+
+const Joi = require('joi');
+
+// Joi šema za validaciju kategorija
+const categorySchema = Joi.object({
+  name: Joi.string().required(),
+});
+
 // Kreiranje nove kategorije
 const createCategory = async (req, res) => {
+  const { error } = categorySchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
   const { name } = req.body;
   try {
     const category = await Category.create({ name });
@@ -38,6 +50,10 @@ const getCategoryById = async (req, res) => {
 
 // Ažuriranje kategorije
 const updateCategory = async (req, res) => {
+  const { error } = categorySchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
   const { id } = req.params;
   const { name } = req.body;
   try {
