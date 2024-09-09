@@ -5,6 +5,74 @@ const { User } = require('../models');
 const router = express.Router();
 require('dotenv').config();
 
+
+router.get('/users', async (req, res) => {
+  const token = req.headers['authorization'].split(' ')[1];
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+  if (!decoded.admin) {
+    return res.status(403).json({ error: 'Access denied. Admins only.' });
+  }
+
+  try {
+    const users = await User.findAll({
+      attributes: ['id', 'username', 'email', 'admin']  // Ne uključujemo password
+    });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching users.' });
+  }
+});
+
+
+router.put('/users/:id', async (req, res) => {
+  const token = req.headers['authorization'].split(' ')[1];
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+  if (!decoded.admin) {
+    return res.status(403).json({ error: 'Access denied. Admins only.' });
+  }
+
+  const { username, email, admin } = req.body;
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (user) {
+      user.username = username || user.username;
+      user.email = email || user.email;
+      user.admin = admin !== undefined ? admin : user.admin;  // Opciono ažuriranje admin statusa
+      await user.save();
+      res.json(user);
+    } else {
+      res.status(404).json({ error: 'User not found.' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Error updating user.' });
+  }
+});
+
+router.get('/users/:id', async (req, res) => {
+  const token = req.headers['authorization'].split(' ')[1];
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+  if (!decoded.admin) {
+    return res.status(403).json({ error: 'Access denied. Admins only.' });
+  }
+
+  try {
+    const user = await User.findByPk(req.params.id, {
+      attributes: ['id', 'username', 'email', 'admin']  // Ne uključujemo password
+    });
+
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ error: 'User not found.' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching user.' });
+  }
+});
+
 // Register route
 router.post('/register', async (req, res) => {
   const { username, password, email } = req.body;
