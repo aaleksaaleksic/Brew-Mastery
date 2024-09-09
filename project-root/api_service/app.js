@@ -7,6 +7,9 @@ const addonRoutes = require('./routes/addonRoutes');
 const promotionRoutes = require('./routes/promotionRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 
+const cors = require('cors');
+app.use(cors({ origin: 'http://localhost:9000', credentials: true }));
+
 require('dotenv').config();
 app.use(express.json());
 
