@@ -19,6 +19,13 @@ const mutations = {
   addOrder(state, order) {
     state.orders.push(order); // Dodajemo novu narudžbinu u listu narudžbina
   },
+  // Nova mutacija za ažuriranje statusa narudžbine
+  SET_ORDER_STATUS(state, { orderId, status }) {
+    const order = state.orders.find((order) => order.id === orderId);
+    if (order) {
+      order.status = status;
+    }
+  },
 };
 
 const actions = {
@@ -36,6 +43,16 @@ const actions = {
     ); // Filtriramo narudžbine po korisničkom ID-u
 
     commit("setOrders", userOrders); // Postavljamo samo narudžbine trenutnog korisnika
+  },
+  async fetchAdminOrders({ commit }) {
+    const token = document.cookie.split("token=")[1];
+    const response = await axios.get("http://localhost:3000/orders", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    commit("setOrders", response.data);
   },
 
   async fetchOrderDetails({ commit }, orderId) {
@@ -80,6 +97,25 @@ const actions = {
       }
     );
     commit("addOrder", response.data); // Dodajemo novu narudžbinu u store
+  },
+
+  // Nova akcija za ažuriranje statusa narudžbine
+  async updateStatus({ commit }, { orderId, status }) {
+    const token = document.cookie.split("token=")[1];
+    try {
+      await axios.put(
+        `http://localhost:3000/orders/${orderId}`,
+        { status },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      commit("SET_ORDER_STATUS", { orderId, status }); // Ažuriramo status narudžbine
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
   },
 };
 

@@ -20,6 +20,11 @@
 import { mapState, mapActions } from "vuex";
 
 export default {
+  data() {
+    return {
+      socket: null, // WebSocket objekat
+    };
+  },
   computed: {
     ...mapState({
       orders: (state) => state.orders.orders,
@@ -27,6 +32,16 @@ export default {
   },
   mounted() {
     this.fetchOrders();
+
+    // Povezivanje na WebSocket
+    this.socket = new WebSocket("ws://localhost:3000");
+
+    this.socket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "ORDER_UPDATED") {
+        this.fetchOrders(); // Ažuriranje porudžbina u realnom vremenu
+      }
+    };
   },
   methods: {
     ...mapActions(["fetchOrders"]),
@@ -35,6 +50,11 @@ export default {
       const options = { year: "numeric", month: "long", day: "numeric" };
       return new Date(dateString).toLocaleDateString(undefined, options);
     },
+  },
+  beforeDestroy() {
+    if (this.socket) {
+      this.socket.close();
+    }
   },
 };
 </script>

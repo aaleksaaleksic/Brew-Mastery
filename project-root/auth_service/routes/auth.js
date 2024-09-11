@@ -7,12 +7,12 @@ require('dotenv').config();
 
 
 router.get('/users', async (req, res) => {
-  const token = req.headers['authorization'].split(' ')[1];
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  // const token = req.headers['authorization'].split(' ')[1];
+  // const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-  if (!decoded.admin) {
-    return res.status(403).json({ error: 'Access denied. Admins only.' });
-  }
+  // if (!decoded.admin) {
+  //   return res.status(403).json({ error: 'Access denied. Admins only.' });
+  // }
 
   try {
     const users = await User.findAll({

@@ -1,5 +1,6 @@
 const axios = require('axios');
 const { Order, OrderItems, Coffee, Addon, OrderItemAddon } = require('../models');
+const { broadcastOrderUpdate } = require('../websocket');
 
 const Joi = require('joi');
 
@@ -13,6 +14,8 @@ const orderSchema = Joi.object({
     addons: Joi.array().items(Joi.number().integer()).optional(),
   })).required(),
 });
+
+
 
 // Funkcija za proveru korisničkog tokena preko auth_service
 const verifyUser = async (token) => {
@@ -58,7 +61,7 @@ const createOrder = async (req, res) => {
         }
       }
     }
-
+    broadcastOrderUpdate(order);
     res.status(201).json(order);
   } catch (error) {
     console.error('Error creating order:', error);
@@ -130,6 +133,7 @@ const updateOrder = async (req, res) => {
     if (order) {
       order.status = status;
       await order.save();
+      broadcastOrderUpdate(order);
       res.status(200).json(order);
     } else {
       res.status(404).json({ error: 'Order not found' });
@@ -152,7 +156,9 @@ const deleteOrder = async (req, res) => {
 
     const order = await Order.findByPk(id);
     if (order) {
+      
       await order.destroy();
+      broadcastOrderUpdate(order);
       res.status(204).json();
     } else {
       res.status(404).json({ error: 'Order not found' });

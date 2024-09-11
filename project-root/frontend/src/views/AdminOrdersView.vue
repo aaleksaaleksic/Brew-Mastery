@@ -18,16 +18,16 @@
           <td>{{ getCustomerName(order.userId) }}</td>
           <td>{{ formatDate(order.createdAt) }}</td>
           <td>
-            <router-link :to="'/orders/' + order.id" class="btn btn-primary"
-              >View</router-link
-            >
+            <router-link :to="'/orders/' + order.id" class="btn btn-primary">
+              View
+            </router-link>
             <button
-              @click="updateStatus(order.id, 'completed')"
+              @click="updateStatusAction(order.id, 'completed')"
               class="btn btn-success"
             >
               Mark as Completed
             </button>
-            <button @click="deleteOrder(order.id)" class="btn btn-danger">
+            <button @click="cancelOrder(order.id)" class="btn btn-danger">
               Delete
             </button>
           </td>
@@ -41,6 +41,11 @@
 import { mapState, mapActions } from "vuex";
 
 export default {
+  data() {
+    return {
+      socket: null, // WebSocket objekat
+    };
+  },
   computed: {
     ...mapState({
       orders: (state) => state.orders.orders,
@@ -48,11 +53,26 @@ export default {
     }),
   },
   mounted() {
-    this.fetchOrders();
+    this.fetchAdminOrders(); // Preuzimamo sve narudžbine za admina
     this.fetchUsers();
+
+    // Povezivanje na WebSocket
+    this.socket = new WebSocket("ws://localhost:3000");
+
+    this.socket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "ORDER_UPDATED") {
+        this.fetchAdminOrders(); // Ažuriranje porudžbina u realnom vremenu
+      }
+    };
   },
   methods: {
-    ...mapActions(["fetchOrders", "fetchUsers", "deleteOrder", "updateStatus"]),
+    ...mapActions([
+      "fetchAdminOrders",
+      "fetchUsers",
+      "cancelOrder",
+      "updateStatus",
+    ]),
 
     getCustomerName(userId) {
       const user = this.users.find((user) => user.id === userId);
@@ -62,6 +82,18 @@ export default {
       const options = { year: "numeric", month: "long", day: "numeric" };
       return new Date(dateString).toLocaleDateString(undefined, options);
     },
+    updateStatusAction(orderId, status) {
+      if (orderId && status) {
+        this.updateStatus({ orderId, status });
+      } else {
+        console.error("Invalid orderId or status");
+      }
+    },
+  },
+  beforeDestroy() {
+    if (this.socket) {
+      this.socket.close();
+    }
   },
 };
 </script>
