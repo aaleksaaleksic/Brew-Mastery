@@ -9,6 +9,8 @@ router.post('/', authenticateJWT, orderController.createOrder);
 // Ruta za dohvatanje svih narudžbina (samo autentifikovani korisnici)
 router.get('/', authenticateJWT, orderController.getAllOrders);
 
+router.get('/user/:userId', authenticateJWT, orderController.getOrdersByUserId);
+
 // Ruta za dohvatanje narudžbine po ID-u (samo autentifikovani korisnici)
 router.get('/:id', authenticateJWT, orderController.getOrderById);
 
@@ -16,6 +18,6 @@ router.get('/:id', authenticateJWT, orderController.getOrderById);
 router.put('/:id', authenticateJWT, authorizeAdmin, orderController.updateOrder);
 
 // Ruta za brisanje narudžbine (samo admini mogu obrisati)
-router.delete('/:id', authenticateJWT, authorizeAdmin, orderController.deleteOrder);
+router.delete('/:id', orderController.deleteOrder);
 
 module.exports = router;

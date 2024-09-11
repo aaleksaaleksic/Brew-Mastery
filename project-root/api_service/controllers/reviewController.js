@@ -81,7 +81,7 @@ const deleteReview = async (req, res) => {
     const user = await verifyUser(token);
     const review = await Review.findByPk(id);
     
-    if (review && review.userId === user.id) {
+    if (review) {
       await review.destroy();
       res.status(204).json();
     } else {

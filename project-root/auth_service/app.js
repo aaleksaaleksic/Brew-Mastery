@@ -7,10 +7,12 @@ const app = express();
 
 
 
-app.use(cors({
-  origin: 'http://localhost:9000', // Dozvoli zahteve sa ove adrese (app_service)
-  credentials: true,               // Dozvoli slanje kolačića (cookie) i zaglavlja sa identifikacijom
-}));
+const corsOptions = {
+  origin: ['http://localhost:8080', 'http://localhost:9000'],
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use('/auth', authRoutes);

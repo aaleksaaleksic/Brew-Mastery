@@ -144,11 +144,11 @@ const deleteOrder = async (req, res) => {
   const { id } = req.params;
   const token = req.header('Authorization')?.split(' ')[1];
 
-  try {
-    const user = await verifyUser(token);
-    if (!user.admin) {
-      return res.status(403).json({ error: 'Access denied. Admins only.' });
-    }
+   try {
+     const user = await verifyUser(token);
+  //   if (!user.admin) {
+  //     return res.status(403).json({ error: 'Access denied. Admins only.' });
+  //   }
 
     const order = await Order.findByPk(id);
     if (order) {
@@ -161,11 +161,30 @@ const deleteOrder = async (req, res) => {
     res.status(500).json({ error: 'Error deleting order' });
   }
 };
+const getOrdersByUserId = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const orders = await Order.findAll({
+      where: { userId },
+      include: [
+        {
+          model: OrderItems,
+          include: [Coffee, Addon]
+        }
+      ]
+    });
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ error: 'Error fetching orders' });
+  }
+};
 
 module.exports = {
   createOrder,
   getAllOrders,
   getOrderById,
   updateOrder,
-  deleteOrder
+  deleteOrder,
+  getOrdersByUserId
 };
