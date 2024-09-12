@@ -13,6 +13,7 @@ import ReviewsList from "../components/ReviewsList.vue";
 import ManageReviews from "../components/ManageReviews.vue";
 import PromotionsList from "../components/PromotionsList.vue";
 import ManagePromotions from "../components/ManagePromotions.vue";
+import RegisterPage from "../components/RegisterPage.vue";
 
 Vue.use(VueRouter);
 
@@ -21,6 +22,7 @@ const routes = [
   { path: "/login", component: LoginPage },
   { path: "/categories", component: CategoryList },
   { path: "/orders", component: OrdersList },
+  { path: "/register", component: RegisterPage },
   { path: "/orders/:id", component: OrderDetails },
   { path: "/create-order", component: CreateOrder },
   {

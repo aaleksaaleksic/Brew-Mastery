@@ -1,7 +1,7 @@
 <template>
-  <div class="login-container">
-    <h1 class="mb-4 text-center">Prijava</h1>
-    <form @submit.prevent="login">
+  <div class="register-container">
+    <h1 class="mb-4 text-center">Registracija</h1>
+    <form @submit.prevent="register">
       <div class="mb-3">
         <label for="username" class="form-label">Korisničko ime</label>
         <input
@@ -9,6 +9,16 @@
           type="text"
           class="form-control"
           id="username"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input
+          v-model="email"
+          type="email"
+          class="form-control"
+          id="email"
           required
         />
       </div>
@@ -23,60 +33,63 @@
         />
       </div>
       <button type="submit" class="btn btn-primary w-100 mb-3">
-        Prijavi se
-      </button>
-      <button @click="continueAsGuest" class="btn btn-secondary w-100 mb-3">
-        Nastavi kao gost
-      </button>
-      <router-link to="/register" class="btn btn-outline-primary w-100">
         Registruj se
-      </router-link>
+      </button>
     </form>
   </div>
 </template>
 
 <script>
 export default {
-  name: "LoginPageView",
+  name: "RegisterPageView",
   data() {
     return {
       username: "",
+      email: "",
       password: "",
     };
   },
   methods: {
-    login() {
-      const credentials = {
+    register() {
+      const userData = {
         username: this.username,
         password: this.password,
+        email: this.email,
       };
-      fetch("http://localhost:8001/auth/login", {
+
+      // Slanje POST zahteva sa ispravno formatiranim podacima
+      fetch("http://localhost:8001/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify(userData),
       })
-        .then((response) => response.json())
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Greška pri registraciji");
+          }
+          return response.json();
+        })
         .then((data) => {
-          if (data.token) {
-            document.cookie = `token=${data.token}; path=/`;
-            this.$router.push("/");
+          if (data.message === "User registered successfully") {
+            alert("Uspešno ste se registrovali!");
+            this.$router.push("/login");
           } else {
-            alert("Pogrešno korisničko ime ili lozinka");
+            alert("Greška prilikom registracije: " + data.message);
           }
         })
-        .catch((error) => console.error("Greška:", error));
-    },
-    continueAsGuest() {
-      this.$router.push("/");
+        .catch((error) => {
+          console.error("Greška:", error);
+          alert("Došlo je do greške pri registraciji.");
+        });
     },
   },
 };
 </script>
 
 <style scoped>
-.login-container {
+.register-container {
   max-width: 400px;
   margin: 100px auto;
   padding: 20px;
@@ -96,10 +109,5 @@ h1 {
 .btn-primary {
   background-color: #6d4c41;
   border-color: #5d4037;
-}
-
-.btn-secondary {
-  background-color: #d7ccc8;
-  color: #3e2723;
 }
 </style>

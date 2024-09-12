@@ -1,63 +1,59 @@
 <template>
-  <div class="container text-center mt-5">
-    <h1 class="mb-4">Dobrodošli u Brew Mastery</h1>
+  <div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="text-center">Dobrodošli u Brew Mastery</h1>
+      <!-- Log In i Registruj se dugmad -->
+      <div v-if="isGuest" class="ml-auto">
+        <router-link to="/login" class="btn btn-primary"
+          >Prijavi se</router-link
+        >
+        <router-link to="/register" class="btn btn-secondary ml-3">
+          Registruj se
+        </router-link>
+      </div>
+      <div v-else class="ml-auto">
+        <button @click="logout" class="btn btn-danger">Odjavi se</button>
+      </div>
+    </div>
 
+    <!-- Prikaz poruka za korisnika ili admina -->
     <p v-if="isGuest" class="alert alert-warning">
-      Pregledavate kao gost. Molimo vas da se prijavite kako biste kreirali
-      narudžbine.
+      Pregledate kao gost. Molimo vas da se prijavite ili registrujete kako
+      biste kreirali narudžbine.
     </p>
     <p v-if="isUser" class="alert alert-info">
       Dobrodošli nazad, {{ user.username }}! Možete pregledati i kreirati
       narudžbine.
     </p>
-    <p v-if="isAdmin" class="alert alert-success">
+    <p v-if="isAdmin" class="alert alert-admin">
       Dobrodošli nazad, Admine! Imate pun pristup za upravljanje korisnicima i
       sadržajem.
     </p>
 
-    <ul class="list-group">
-      <li class="list-group-item">
-        <router-link to="/categories">Pogledaj kategorije</router-link>
-      </li>
-      <li class="list-group-item">
-        <router-link to="/coffees">Pogledaj kafe</router-link>
-      </li>
-      <li v-if="isUser" class="list-group-item">
-        <router-link to="/create-order">Kreiraj narudžbinu</router-link>
-      </li>
-      <li v-if="isUser" class="list-group-item">
-        <router-link to="/orders">Moje narudžbine</router-link>
-      </li>
-      <li v-if="isAdmin" class="list-group-item">
-        <router-link to="/admin-orders"
-          >Upravljaj svim narudžbinama</router-link
-        >
-      </li>
-      <li class="list-group-item">
-        <router-link to="/addons">Pogledaj dodatke</router-link>
-      </li>
-      <li v-if="isAdmin" class="list-group-item">
-        <router-link to="/manage-addons">Upravljaj dodacima</router-link>
-      </li>
-      <li class="list-group-item">
-        <router-link to="/reviews">Pogledaj recenzije</router-link>
-      </li>
-      <li v-if="isAdmin" class="list-group-item">
-        <router-link to="/manage-reviews">Upravljaj recenzijama</router-link>
-      </li>
-      <li class="list-group-item">
-        <router-link to="/promotions">Pogledaj promocije</router-link>
-      </li>
-      <li v-if="isAdmin" class="list-group-item">
-        <router-link to="/manage-promotions">Upravljaj promocijama</router-link>
-      </li>
-    </ul>
-
-    <div v-if="isGuest" class="mt-4">
-      <router-link to="/login" class="btn btn-primary">Prijavi se</router-link>
-    </div>
-    <div v-else class="mt-4">
-      <button @click="logout" class="btn btn-danger">Odjavi se</button>
+    <!-- Prikaz kartica -->
+    <div class="row">
+      <div
+        class="col-md-4 mb-4"
+        v-for="option in filteredOptions"
+        :key="option.link"
+      >
+        <div class="card h-100 text-center">
+          <!-- Prikaz slike samo ako opcija ima definisanu sliku -->
+          <img
+            v-if="option.image"
+            :src="getImage(option.image)"
+            :alt="option.name"
+            class="card-img-top"
+            style="height: 120px; object-fit: cover"
+          />
+          <div class="card-body">
+            <h5 class="card-title">{{ option.name }}</h5>
+            <router-link :to="option.link" class="btn btn-primary w-100">
+              {{ option.buttonText }}
+            </router-link>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -68,6 +64,80 @@ export default {
   data() {
     return {
       user: null,
+      options: [
+        {
+          name: "Pogledaj kategorije",
+          link: "/categories",
+          image: "pogledaj-kategorije",
+          buttonText: "Pogledaj kategorije",
+        },
+        {
+          name: "Pogledaj kafe",
+          link: "/coffees",
+          image: "pogledaj-kafe",
+          buttonText: "Pogledaj kafe",
+        },
+        {
+          name: "Kreiraj narudžbinu",
+          link: "/create-order",
+          image: "kreiraj-narudzbinu",
+          buttonText: "Kreiraj narudžbinu",
+          userOnly: true, // Prikaz samo za korisnike
+        },
+        {
+          name: "Moje narudžbine",
+          link: "/orders",
+          image: "moje-narudzbine",
+          buttonText: "Moje narudžbine",
+          userOnly: true, // Prikaz samo za korisnike
+        },
+        {
+          name: "Pogledaj dodatke",
+          link: "/addons",
+          image: "pogledaj-dodatke",
+          buttonText: "Pogledaj dodatke",
+        },
+        {
+          name: "Pogledaj recenzije",
+          link: "/reviews",
+          image: "pogledaj-recenzije",
+          buttonText: "Pogledaj recenzije",
+        },
+        {
+          name: "Pogledaj promocije",
+          link: "/promotions",
+          image: "pogledaj-promocije",
+          buttonText: "Pogledaj promocije",
+        },
+        {
+          name: "Upravljaj dodacima",
+          link: "/manage-addons",
+          image: null,
+          buttonText: "Upravljaj dodacima",
+          adminOnly: true, // Prikaz samo za admina
+        },
+        {
+          name: "Upravljaj recenzijama",
+          link: "/manage-reviews",
+          image: null,
+          buttonText: "Upravljaj recenzijama",
+          adminOnly: true, // Prikaz samo za admina
+        },
+        {
+          name: "Upravljaj promocijama",
+          link: "/manage-promotions",
+          image: null,
+          buttonText: "Upravljaj promocijama",
+          adminOnly: true, // Prikaz samo za admina
+        },
+        {
+          name: "Upravljaj svim narudžbinama",
+          link: "/admin-orders",
+          image: null,
+          buttonText: "Upravljaj narudžbinama",
+          adminOnly: true, // Prikaz samo za admina
+        },
+      ],
     };
   },
   computed: {
@@ -79,6 +149,17 @@ export default {
     },
     isAdmin() {
       return this.user && this.user.admin;
+    },
+    filteredOptions() {
+      return this.options.filter((option) => {
+        if (option.adminOnly && !this.isAdmin) {
+          return false;
+        }
+        if (option.userOnly && !this.isUser) {
+          return false;
+        }
+        return true;
+      });
     },
   },
   mounted() {
@@ -99,23 +180,29 @@ export default {
       this.user = null;
       this.$router.push("/login");
     },
+    getImage(option) {
+      try {
+        return require(`@/assets/home/${option}.webp`);
+      } catch (e) {
+        return null; // Ako slika ne postoji, ne prikazujemo ništa
+      }
+    },
   },
 };
 </script>
 
 <style scoped>
 .container {
-  max-width: 600px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-.list-group-item {
+.card {
   background-color: #f9f6f2;
   border: 1px solid #d7ccc8;
-  color: #5d4037;
 }
 
-h1 {
+.card-title {
   color: #3e2723;
 }
 
@@ -126,15 +213,15 @@ h1 {
 }
 
 .alert-info {
-  background-color: #d1ecf1;
-  border-color: #bee5eb;
+  background-color: #fff3cd;
+  border-color: #ffeeba;
   color: #0c5460;
 }
 
-.alert-success {
-  background-color: #d4edda;
-  border-color: #c3e6cb;
-  color: #155724;
+.alert-admin {
+  background-color: #6d4c41;
+  border-color: #5d4037;
+  color: #f9f6f2;
 }
 
 .btn-primary {
@@ -143,6 +230,10 @@ h1 {
 }
 
 .btn-danger {
-  background-color: #d32f2f;
+  background-color: #856404;
+}
+
+.card-img-top {
+  border-bottom: 1px solid #d7ccc8;
 }
 </style>

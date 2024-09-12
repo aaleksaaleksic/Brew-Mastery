@@ -74,17 +74,38 @@ router.get('/users/:id', async (req, res) => {
 });
 
 // Register route
+// Register route
 router.post('/register', async (req, res) => {
   const { username, password, email } = req.body;
   try {
+    // Proveravamo da li korisničko ime ili email već postoje
+    const existingUser = await User.findOne({ where: { username } });
+    const existingEmail = await User.findOne({ where: { email } });
+
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username already exists.' });
+    }
+
+    if (existingEmail) {
+      return res.status(400).json({ error: 'Email already registered.' });
+    }
+
+    // Kreiramo korisnika sa hešovanom lozinkom
     const hashedPassword = bcrypt.hashSync(password, 10);
     const user = await User.create({ username, password: hashedPassword, email });
-    const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET);
-    res.json({ token });
+
+    // Kreiramo JWT token
+    const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, {
+      expiresIn: '1h', // Token ističe za 1 sat
+    });
+
+    res.status(201).json({ token, message: 'User registered successfully' });
   } catch (err) {
-    res.status(500).json({ error: 'Error registering user. ' });
+    console.error(err); // Ispisujemo tačnu grešku na serveru
+    res.status(500).json({ error: 'Error registering user.' });
   }
 });
+
 
 // Login route
 router.post('/login', async (req, res) => {

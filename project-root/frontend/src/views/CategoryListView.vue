@@ -9,6 +9,14 @@
         class="col-md-4 mb-4"
       >
         <div class="card h-100">
+          <!-- Prikazujemo sliku kategorije -->
+          <img
+            v-if="categoryImage(category.name)"
+            :src="categoryImage(category.name)"
+            alt="Slika kategorije"
+            class="card-img-top"
+            style="height: 200px; object-fit: cover"
+          />
           <div class="card-body">
             <h5 class="card-title">{{ category.name }}</h5>
           </div>
@@ -35,6 +43,23 @@ export default {
   },
   methods: {
     ...mapActions(["fetchCategories"]),
+
+    categoryImage(categoryName) {
+      const formattedName = categoryName
+        .toLowerCase()
+        .replace(/č/g, "c")
+        .replace(/ć/g, "c")
+        .replace(/š/g, "s")
+        .replace(/ž/g, "z")
+        .replace(/đ/g, "dj")
+        .replace(/\s+/g, "-");
+
+      try {
+        return require(`@/assets/categories/${formattedName}.webp`);
+      } catch (e) {
+        return require(`@/assets/categories/placeholder.webp`);
+      }
+    },
   },
 };
 </script>
@@ -53,5 +78,9 @@ export default {
   background-color: #fff3cd;
   border-color: #ffeeba;
   color: #856404;
+}
+
+.card-img-top {
+  border-bottom: 1px solid #d7ccc8;
 }
 </style>
