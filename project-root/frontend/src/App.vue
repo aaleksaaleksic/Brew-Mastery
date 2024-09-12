@@ -1,12 +1,23 @@
 <template>
   <div id="app">
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </nav>
+    <!-- Uključujemo Header na vrh svake stranice -->
+    <PageHeader />
+
+    <!-- Ostatak aplikacije -->
     <router-view />
   </div>
 </template>
+
+<script>
+import PageHeader from "./components/PageHeader.vue";
+
+export default {
+  name: "App",
+  components: {
+    PageHeader,
+  },
+};
+</script>
 
 <style>
 #app {

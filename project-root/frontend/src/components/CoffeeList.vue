@@ -1,16 +1,19 @@
 <template>
   <div class="container mt-5">
-    <h2 class="mb-4 text-center">Dostupni dodaci</h2>
-
-    <ul v-if="addons.length" class="list-group">
-      <li v-for="addon in addons" :key="addon.id" class="list-group-item">
-        <h5>{{ addon.name }}</h5>
-        <p>Cena: {{ addon.price }} RSD</p>
+    <h2 class="mb-4 text-center">Sve kafe</h2>
+    <ul v-if="coffees.length > 0" class="list-group">
+      <li
+        v-for="coffee in coffees"
+        :key="coffee.id"
+        class="list-group-item mb-3"
+      >
+        <h4>{{ coffee.name }}</h4>
+        <p>{{ coffee.description }}</p>
+        <p>Cena: {{ coffee.price }} RSD</p>
       </li>
     </ul>
-
     <p v-else class="alert alert-warning text-center">
-      Trenutno nema dostupnih dodataka.
+      Trenutno nema dostupnih kafa.
     </p>
   </div>
 </template>
@@ -19,16 +22,17 @@
 import { mapState, mapActions } from "vuex";
 
 export default {
+  name: "CoffeeList",
   computed: {
     ...mapState({
-      addons: (state) => state.addons.addons,
+      coffees: (state) => state.coffees.coffees,
     }),
   },
   mounted() {
-    this.fetchAddons();
+    this.fetchCoffees();
   },
   methods: {
-    ...mapActions(["fetchAddons"]),
+    ...mapActions(["fetchCoffees"]),
   },
 };
 </script>
@@ -45,7 +49,7 @@ export default {
   color: #5d4037;
 }
 
-h5 {
+h4 {
   color: #3e2723;
 }
 
@@ -53,9 +57,5 @@ h5 {
   background-color: #fff3cd;
   border-color: #ffeeba;
   color: #856404;
-}
-
-p {
-  margin-bottom: 5px;
 }
 </style>

@@ -1,22 +1,31 @@
 <template>
-  <div>
-    <h2>Current Promotions</h2>
+  <div class="container mt-5">
+    <h2 class="mb-4 text-center">Trenutne promocije</h2>
 
-    <div v-if="promotions.length === 0">
-      <p>No promotions available at the moment.</p>
+    <div v-if="promotions.length" class="row">
+      <div
+        v-for="promotion in promotions"
+        :key="promotion.name"
+        class="col-md-4 mb-4"
+      >
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">{{ promotion.name }}</h5>
+            <p class="card-text">{{ promotion.description }}</p>
+            <p class="card-text">
+              Popust: <strong>{{ promotion.discount }}%</strong>
+            </p>
+            <p class="card-text">
+              Važi od: {{ formatDate(promotion.startDate) }} do
+              {{ formatDate(promotion.endDate) }}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <ul v-else>
-      <li v-for="promotion in promotions" :key="promotion.name">
-        <h3>{{ promotion.name }}</h3>
-        <p>{{ promotion.description }}</p>
-        <p>Discount: {{ promotion.discount }}%</p>
-        <p>
-          Valid from: {{ formatDate(promotion.startDate) }} to
-          {{ formatDate(promotion.endDate) }}
-        </p>
-      </li>
-    </ul>
+    <p v-else class="alert alert-warning text-center">
+      Trenutno nema dostupnih promocija.
+    </p>
   </div>
 </template>
 
@@ -38,27 +47,35 @@ export default {
         .then((data) => {
           this.promotions = data;
         })
-        .catch((error) => console.error("Error fetching promotions:", error));
+        .catch((error) =>
+          console.error("Greška pri preuzimanju promocija:", error)
+        );
     },
     formatDate(dateString) {
       const options = { year: "numeric", month: "long", day: "numeric" };
-      return new Date(dateString).toLocaleDateString(undefined, options);
+      return new Date(dateString).toLocaleDateString("sr-RS", options);
     },
   },
 };
 </script>
 
 <style scoped>
-ul {
-  list-style-type: none;
-  padding: 0;
+.card {
+  background-color: #f9f6f2;
+  border: 1px solid #d7ccc8;
 }
 
-li {
-  margin: 10px 0;
+.card-title {
+  color: #3e2723;
 }
 
-h3 {
-  margin-bottom: 5px;
+.alert-warning {
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+  color: #856404;
+}
+
+.card-text {
+  color: #5d4037;
 }
 </style>

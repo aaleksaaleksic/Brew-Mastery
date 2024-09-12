@@ -1,56 +1,71 @@
 <template>
-  <div>
-    <h2>Create New Order</h2>
+  <div class="container mt-5">
+    <h2 class="mb-4 text-center">Kreiraj novu narudžbinu</h2>
 
     <form @submit.prevent="submitOrder">
-      <div v-for="(orderItem, index) in orderItems" :key="index">
-        <h3>Item {{ index + 1 }}</h3>
+      <div
+        v-for="(orderItem, index) in orderItems"
+        :key="index"
+        class="card mb-4 p-3"
+      >
+        <h3>Proizvod {{ index + 1 }}</h3>
 
-        <div>
-          <label for="coffee">Select Coffee:</label>
-          <select v-model="orderItem.selectedCoffeeId" id="coffee" required>
+        <div class="mb-3">
+          <label for="coffee" class="form-label">Izaberi kafu:</label>
+          <select
+            v-model="orderItem.selectedCoffeeId"
+            id="coffee"
+            class="form-select"
+            required
+          >
             <option
               v-for="coffee in coffees"
               :key="coffee.id"
               :value="coffee.id"
             >
-              {{ coffee.name }} - ${{ coffee.price }}
+              {{ coffee.name }} - {{ coffee.price }} RSD
             </option>
           </select>
         </div>
 
-        <div>
-          <label for="quantity">Quantity:</label>
+        <div class="mb-3">
+          <label for="quantity" class="form-label">Količina:</label>
           <input
             type="number"
             v-model="orderItem.quantity"
             min="1"
             id="quantity"
+            class="form-control"
             required
           />
         </div>
 
-        <div>
-          <label for="addons">Select Addons:</label>
-          <div v-for="addon in addons" :key="addon.id">
+        <div class="mb-3">
+          <label for="addons" class="form-label">Izaberi dodatke:</label>
+          <div v-for="addon in addons" :key="addon.id" class="form-check">
             <input
               type="checkbox"
               :value="addon.id"
               v-model="orderItem.selectedAddons"
+              class="form-check-input"
             />
-            {{ addon.name }} - ${{ addon.price }}
+            <label class="form-check-label">
+              {{ addon.name }} - {{ addon.price }} RSD
+            </label>
           </div>
         </div>
 
         <button @click.prevent="removeOrderItem(index)" class="btn btn-danger">
-          Remove Item
+          Ukloni proizvod
         </button>
       </div>
 
-      <button @click.prevent="addOrderItem" class="btn btn-secondary">
-        Add Another Item
+      <button @click.prevent="addOrderItem" class="btn btn-secondary mb-3 me-3">
+        Dodaj još jedan proizvod
       </button>
-      <button type="submit" class="btn btn-primary">Submit Order</button>
+      <button type="submit" class="btn btn-primary mb-3">
+        Potvrdi narudžbinu
+      </button>
     </form>
   </div>
 </template>
@@ -103,7 +118,7 @@ export default {
       );
       if (!validOrderItems) {
         alert(
-          "Please select a coffee and enter a valid quantity for each item."
+          "Molimo vas da izaberete kafu i unesete ispravnu količinu za svaki proizvod."
         );
         return;
       }
@@ -122,13 +137,42 @@ export default {
 
       this.placeOrder(orderData)
         .then(() => {
-          alert("Order submitted successfully!");
+          alert("Narudžbina je uspešno poslata!");
           this.$router.push("/orders");
         })
         .catch((error) => {
-          console.error("Error submitting order:", error);
+          console.error("Greška prilikom slanja narudžbine:", error);
         });
     },
   },
 };
 </script>
+
+<style scoped>
+.container {
+  max-width: 600px;
+}
+
+.card {
+  background-color: #f9f6f2;
+  border: 1px solid #d7ccc8;
+}
+
+.btn-primary {
+  background-color: #6d4c41;
+  border-color: #5d4037;
+}
+
+.btn-secondary {
+  background-color: #d7ccc8;
+  color: #3e2723;
+}
+
+.btn-danger {
+  background-color: #d32f2f;
+}
+
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+</style>

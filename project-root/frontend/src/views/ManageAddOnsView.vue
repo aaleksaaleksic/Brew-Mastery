@@ -1,54 +1,77 @@
 <template>
-  <div>
-    <h2>Manage Add-Ons</h2>
+  <div class="container mt-5">
+    <h2 class="mb-4 text-center">Upravljanje dodacima</h2>
 
-    <ul v-if="addons.length">
-      <li v-for="addon in addons" :key="addon.id">
-        {{ addon.name }} - ${{ addon.price }}
-        <button @click="prepareEdit(addon)" class="btn btn-primary">
-          Edit
-        </button>
-        <button @click="removeAddon(addon.id)" class="btn btn-danger">
-          Delete
-        </button>
+    <ul v-if="addons.length" class="list-group mb-4">
+      <li
+        v-for="addon in addons"
+        :key="addon.id"
+        class="list-group-item d-flex justify-content-between align-items-center"
+      >
+        {{ addon.name }} - {{ addon.price }} RSD
+        <div>
+          <button
+            @click="prepareEdit(addon)"
+            class="btn btn-primary btn-sm me-2"
+          >
+            Izmeni
+          </button>
+          <button @click="removeAddon(addon.id)" class="btn btn-danger btn-sm">
+            Obriši
+          </button>
+        </div>
       </li>
     </ul>
 
-    <form @submit.prevent="addAddon" v-if="!isEditing">
-      <h3>Add New Add-On</h3>
-      <div>
-        <label for="name">Add-On Name:</label>
-        <input type="text" v-model="newAddon.name" id="name" required />
+    <form @submit.prevent="addAddon" v-if="!isEditing" class="card p-4">
+      <h3 class="mb-3">Dodaj novi dodatak</h3>
+      <div class="mb-3">
+        <label for="name" class="form-label">Naziv dodatka:</label>
+        <input
+          type="text"
+          v-model="newAddon.name"
+          id="name"
+          class="form-control"
+          required
+        />
       </div>
-      <div>
-        <label for="price">Price:</label>
-        <input type="number" v-model="newAddon.price" id="price" required />
+      <div class="mb-3">
+        <label for="price" class="form-label">Cena:</label>
+        <input
+          type="number"
+          v-model="newAddon.price"
+          id="price"
+          class="form-control"
+          required
+        />
       </div>
-      <button type="submit" class="btn btn-success">Add Add-On</button>
+      <button type="submit" class="btn btn-success">Dodaj dodatak</button>
     </form>
 
-    <form @submit.prevent="submitEdit" v-if="isEditing">
-      <h3>Edit Add-On</h3>
-      <div>
-        <label for="editName">Add-On Name:</label>
+    <form @submit.prevent="submitEdit" v-if="isEditing" class="card p-4 mt-4">
+      <h3 class="mb-3">Izmeni dodatak</h3>
+      <div class="mb-3">
+        <label for="editName" class="form-label">Naziv dodatka:</label>
         <input
           type="text"
           v-model="editableAddon.name"
           id="editName"
+          class="form-control"
           required
         />
       </div>
-      <div>
-        <label for="editPrice">Price:</label>
+      <div class="mb-3">
+        <label for="editPrice" class="form-label">Cena:</label>
         <input
           type="number"
           v-model="editableAddon.price"
           id="editPrice"
+          class="form-control"
           required
         />
       </div>
-      <button type="submit" class="btn btn-primary">Save Changes</button>
-      <button @click="cancelEdit" class="btn btn-secondary">Cancel</button>
+      <button type="submit" class="btn btn-primary me-2">Sačuvaj izmene</button>
+      <button @click="cancelEdit" class="btn btn-secondary">Otkaži</button>
     </form>
   </div>
 </template>
@@ -57,7 +80,6 @@
 import { mapState, mapActions } from "vuex";
 
 export default {
-  name: "ManageAddOnsView",
   data() {
     return {
       newAddon: {
@@ -108,3 +130,28 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.card {
+  background-color: #f9f6f2;
+  border: 1px solid #d7ccc8;
+}
+
+.btn-primary {
+  background-color: #6d4c41;
+  border-color: #5d4037;
+}
+
+.btn-success {
+  background-color: #388e3c;
+}
+
+.btn-danger {
+  background-color: #d32f2f;
+}
+
+.btn-secondary {
+  background-color: #d7ccc8;
+  color: #3e2723;
+}
+</style>

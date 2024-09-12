@@ -1,55 +1,63 @@
 <template>
-  <div>
-    <h1>Welcome to Brew Mastery</h1>
+  <div class="container text-center mt-5">
+    <h1 class="mb-4">Dobrodošli u Brew Mastery</h1>
 
-    <p v-if="isGuest">
-      You are browsing as a guest. Please login to make orders.
+    <p v-if="isGuest" class="alert alert-warning">
+      Pregledavate kao gost. Molimo vas da se prijavite kako biste kreirali
+      narudžbine.
     </p>
-    <p v-if="isUser">
-      Welcome back, {{ user.username }}! You can browse and place orders.
+    <p v-if="isUser" class="alert alert-info">
+      Dobrodošli nazad, {{ user.username }}! Možete pregledati i kreirati
+      narudžbine.
     </p>
-    <p v-if="isAdmin">
-      Welcome back, Admin! You have full access to manage users and content.
+    <p v-if="isAdmin" class="alert alert-success">
+      Dobrodošli nazad, Admine! Imate pun pristup za upravljanje korisnicima i
+      sadržajem.
     </p>
 
-    <ul>
-      <li>
-        <router-link to="/categories">View Categories</router-link>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <router-link to="/categories">Pogledaj kategorije</router-link>
       </li>
-      <li v-if="isUser">
-        <router-link to="/create-order">Create Order</router-link>
+      <li class="list-group-item">
+        <router-link to="/coffees">Pogledaj kafe</router-link>
       </li>
-      <li v-if="isUser">
-        <router-link to="/orders">My Orders</router-link>
+      <li v-if="isUser" class="list-group-item">
+        <router-link to="/create-order">Kreiraj narudžbinu</router-link>
       </li>
-      <li v-if="isAdmin">
-        <router-link to="/admin-orders">Manage All Orders</router-link>
+      <li v-if="isUser" class="list-group-item">
+        <router-link to="/orders">Moje narudžbine</router-link>
       </li>
-      <li>
-        <router-link to="/addons">View Add-Ons</router-link>
+      <li v-if="isAdmin" class="list-group-item">
+        <router-link to="/admin-orders"
+          >Upravljaj svim narudžbinama</router-link
+        >
       </li>
-      <li v-if="isAdmin">
-        <router-link to="/manage-addons">Manage Add-Ons</router-link>
+      <li class="list-group-item">
+        <router-link to="/addons">Pogledaj dodatke</router-link>
       </li>
-      <li>
-        <router-link to="/reviews">View Reviews</router-link>
+      <li v-if="isAdmin" class="list-group-item">
+        <router-link to="/manage-addons">Upravljaj dodacima</router-link>
       </li>
-      <li v-if="isAdmin">
-        <router-link to="/manage-reviews">Manage Reviews</router-link>
+      <li class="list-group-item">
+        <router-link to="/reviews">Pogledaj recenzije</router-link>
       </li>
-      <li>
-        <router-link to="/promotions">View Promotions</router-link>
+      <li v-if="isAdmin" class="list-group-item">
+        <router-link to="/manage-reviews">Upravljaj recenzijama</router-link>
       </li>
-      <li v-if="isAdmin">
-        <router-link to="/manage-promotions">Manage Promotions</router-link>
+      <li class="list-group-item">
+        <router-link to="/promotions">Pogledaj promocije</router-link>
+      </li>
+      <li v-if="isAdmin" class="list-group-item">
+        <router-link to="/manage-promotions">Upravljaj promocijama</router-link>
       </li>
     </ul>
 
-    <div v-if="isGuest">
-      <router-link to="/login" class="btn btn-primary">Log in</router-link>
+    <div v-if="isGuest" class="mt-4">
+      <router-link to="/login" class="btn btn-primary">Prijavi se</router-link>
     </div>
-    <div v-else>
-      <button @click="logout" class="btn btn-danger">Log out</button>
+    <div v-else class="mt-4">
+      <button @click="logout" class="btn btn-danger">Odjavi se</button>
     </div>
   </div>
 </template>
@@ -96,12 +104,45 @@ export default {
 </script>
 
 <style scoped>
-ul {
-  list-style-type: none;
-  padding: 0;
+.container {
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-li {
-  margin: 10px 0;
+.list-group-item {
+  background-color: #f9f6f2;
+  border: 1px solid #d7ccc8;
+  color: #5d4037;
+}
+
+h1 {
+  color: #3e2723;
+}
+
+.alert-warning {
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+  color: #856404;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+  color: #0c5460;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.btn-primary {
+  background-color: #6d4c41;
+  border-color: #5d4037;
+}
+
+.btn-danger {
+  background-color: #d32f2f;
 }
 </style>

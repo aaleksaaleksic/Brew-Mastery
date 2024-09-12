@@ -46,6 +46,11 @@ const routes = [
     component: ManagePromotions,
     meta: { requiresAdmin: true },
   },
+  {
+    path: "/coffees",
+    name: "Coffees",
+    component: () => import("../views/CoffeeListView.vue"),
+  },
 ];
 
 const router = new VueRouter({

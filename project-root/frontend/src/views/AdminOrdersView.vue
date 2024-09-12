@@ -1,14 +1,15 @@
 <template>
-  <div>
-    <h1>All Orders (Admin View)</h1>
-    <table class="table">
-      <thead>
+  <div class="container mt-5">
+    <h1 class="mb-4 text-center">Sve narudžbine (Admin prikaz)</h1>
+
+    <table class="table table-striped">
+      <thead class="thead-dark">
         <tr>
-          <th>Order ID</th>
+          <th>ID narudžbine</th>
           <th>Status</th>
-          <th>Customer</th>
-          <th>Date</th>
-          <th>Actions</th>
+          <th>Kupac</th>
+          <th>Datum</th>
+          <th>Akcije</th>
         </tr>
       </thead>
       <tbody>
@@ -18,17 +19,20 @@
           <td>{{ getCustomerName(order.userId) }}</td>
           <td>{{ formatDate(order.createdAt) }}</td>
           <td>
-            <router-link :to="'/orders/' + order.id" class="btn btn-primary">
-              View
+            <router-link
+              :to="'/orders/' + order.id"
+              class="btn btn-primary me-2"
+            >
+              Pregledaj
             </router-link>
             <button
               @click="updateStatusAction(order.id, 'completed')"
-              class="btn btn-success"
+              class="btn btn-success me-2"
             >
-              Mark as Completed
+              Obeleži kao završenu
             </button>
             <button @click="cancelOrder(order.id)" class="btn btn-danger">
-              Delete
+              Izbriši
             </button>
           </td>
         </tr>
@@ -76,17 +80,17 @@ export default {
 
     getCustomerName(userId) {
       const user = this.users.find((user) => user.id === userId);
-      return user ? user.username : "Unknown User";
+      return user ? user.username : "Nepoznat korisnik";
     },
     formatDate(dateString) {
       const options = { year: "numeric", month: "long", day: "numeric" };
-      return new Date(dateString).toLocaleDateString(undefined, options);
+      return new Date(dateString).toLocaleDateString("sr-RS", options);
     },
     updateStatusAction(orderId, status) {
       if (orderId && status) {
         this.updateStatus({ orderId, status });
       } else {
-        console.error("Invalid orderId or status");
+        console.error("Nevažeći ID narudžbine ili status");
       }
     },
   },
@@ -97,3 +101,27 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.table {
+  margin-top: 20px;
+}
+
+.btn-primary {
+  background-color: #6d4c41;
+  border-color: #5d4037;
+}
+
+.btn-success {
+  background-color: #388e3c;
+}
+
+.btn-danger {
+  background-color: #d32f2f;
+}
+
+.thead-dark {
+  background-color: #3e2723;
+  color: white;
+}
+</style>
