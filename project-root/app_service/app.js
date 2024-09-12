@@ -28,7 +28,7 @@ function authToken(req, res, next) {
     });
 }
 
-// Ruta za login stranicu
+// Ruta za login stranicu admin panela
 app.get('/administrator/login', (req, res) => {
     res.sendFile('login.html', { root: './static/administrator' });
 });
@@ -43,11 +43,20 @@ app.get('/administrator/script/:file', (req, res) => {
     res.sendFile(path.join(__dirname, 'static/script', req.params.file));
 });
 
-// Ruta za sve ostale entitete (HTML stranice)
+// Ruta za sve ostale entitete (HTML stranice u administratoru)
 app.get('/administrator/:page', authToken, (req, res) => {
     res.sendFile(path.join(__dirname, 'static/administrator', `${req.params.page}.html`));
 });
 
+// Postavljanje Vue aplikacije kao statičke
+app.use(express.static(path.join(__dirname, 'static/vue')));
+
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'static/vue/index.html'));
+});
+
+// Pokretanje servera na portu 9000
 app.listen(9000, () => {
     console.log('Server running on port 9000');
 });

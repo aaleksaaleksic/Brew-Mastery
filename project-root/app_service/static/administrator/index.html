@@ -23,8 +23,13 @@
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const cookies = document.cookie.split('=');
-            const token = cookies[cookies.length - 1];
+            const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
+                const [key, value] = cookie.split('=');
+                acc[key] = value;
+                return acc;
+            }, {});
+
+            const token = cookies['token'];
 
             if (!token) {
                 window.location.href = '/administrator/login'; // Redirekcija ako korisnik nije ulogovan
@@ -40,10 +45,29 @@
 
             // Logout funkcionalnost
             document.getElementById('logout-button').addEventListener('click', function () {
-                document.cookie = 'token=; Max-Age=0; path=/';  // Brisanje tokena
+                // Brisanje tokena sa odgovarajućom putanjom
+                document.cookie = 'token=; Max-Age=0; path=/';  // Brisanje tokena sa root putanje
+
+                // Sprečavanje vraćanja na prethodnu stranicu iz keša
+                window.history.replaceState(null, null, window.location.href); 
                 window.location.href = '/administrator/login'; // Redirekcija na login
             });
         });
+
+        // Sprečavanje keširanja stranica
+        window.onload = function() {
+            // Sprečavanje keširanja pomoću HTTP zaglavlja
+            if (window.location.pathname !== '/administrator/login') {
+                document.cookie = 'no-cache="true"; Max-Age=0; path=/';
+            }
+
+            // Sprečavanje vraćanja sa back dugmetom (keširanje stranica)
+            window.addEventListener('pageshow', function (event) {
+                if (event.persisted) {
+                    window.location.reload();
+                }
+            });
+        };
     </script>
 </head>
 <body>

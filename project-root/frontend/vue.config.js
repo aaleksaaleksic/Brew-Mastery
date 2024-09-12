@@ -14,6 +14,6 @@ module.exports = defineConfig({
       },
     },
   },
-  outputDir: "../app_service/static",
+  outputDir: "../app_service/static/vue",
   publicPath: "/",
 });
